@@ -5,4 +5,12 @@ services:
       dockerfile: docker/Dockerfile.qwen
     container_name: qwen
     ports:
-      - "8000:8901"
+      - "8000:8000"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
+    environment:
+      - VLLM_LOGGING_LEVEL=INFO
