@@ -1,0 +1,8 @@
+services:
+  qwen:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.qwen
+    container_name: qwen
+    ports:
+      - "8000:8901"
