@@ -1,0 +1,7 @@
+FROM eclipse-temurin:17-jdk
+
+EXPOSE 1805
+
+WORKDIR /app
+COPY TelegramBot/build/libs/*.jar telegramBot.jar
+ENTRYPOINT ["java", "-jar", "telegramBot.jar"]

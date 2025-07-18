@@ -1,0 +1,68 @@
+services:
+  server:
+    depends_on:
+      - postgres
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.server
+    container_name: server-container
+    ports:
+      - "1804:1804"
+    healthcheck:
+      test: [ "CMD", "pgrep", "java" ]
+      interval: 5s
+      retries: 3
+    tty: true
+    env_file:
+      - .env.server
+
+
+  bot:
+    depends_on:
+      - postgres
+      - server
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.bot
+    container_name: bot-container
+    ports:
+      - "1805:1805"
+    healthcheck:
+      test: [ "CMD", "pgrep", "java" ]
+      interval: 5s
+      retries: 3
+    tty: true
+    env_file:
+      - .env.bot
+
+
+
+  postgres:
+    image: postgres
+    volumes:
+      - ./database/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres_admin -d live-pilot-db"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+      env_file:
+      - .env.postgres
+
+
+  whisper-api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.whisper
+    image: whisper-api:latest
+    container_name: whisper-api
+    ports:
+      - "8901:8901"
+    environment:
+      - WHISPER_MODEL=turbo 
+    volumes:
+      - .:/app
+    restart: unless-stopped

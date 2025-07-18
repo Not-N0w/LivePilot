@@ -1,0 +1,4 @@
+.env.bot
+.env.server
+.env.postgres
+./whisper/_pycache_
