@@ -6,11 +6,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.not.n0w.livepilot.aiAgent.AiAgent;
 import com.github.not.n0w.livepilot.aiAgent.PromptLoader;
 import com.github.not.n0w.livepilot.aiAgent.model.AiAnswer;
-import com.github.not.n0w.livepilot.aiAgent.model.ChatCompletionRequest;
+import com.github.not.n0w.livepilot.aiAgent.model.AiChatSession;
 import com.github.not.n0w.livepilot.aiAgent.model.Message;
 import com.github.not.n0w.livepilot.aiAgent.model.mapper.ChatMapper;
+import com.github.not.n0w.livepilot.aiAgent.task.AiAgentTask;
 import com.github.not.n0w.livepilot.aiAgent.task.AiTask;
 import com.github.not.n0w.livepilot.aiAgent.task.tasks.TaskRegistry;
+import com.github.not.n0w.livepilot.aiAgent.tool.ToolExecutor;
 import com.github.not.n0w.livepilot.model.Chat;
 import com.github.not.n0w.livepilot.model.SavedMessage;
 import com.github.not.n0w.livepilot.repository.ChatRepository;
@@ -35,21 +37,23 @@ public class MainAiAgentImpl implements AiAgent {
     private final TaskRegistry taskRegistry;
 
     private WebClient aiWebClient;
-    private final ChatCompletionRequest baseCompletionRequest;
+    private final AiChatSession baseCompletionRequest;
+    private final ToolExecutor toolExecutor;
 
     @Autowired
     public MainAiAgentImpl(PromptLoader promptLoader,
                            ChatRepository chatRepository,
                            ChatMapper chatMapper,
-                           TaskRegistry taskRegistry) {
+                           TaskRegistry taskRegistry, ToolExecutor toolExecutor) {
         this.promptLoader = promptLoader;
         this.chatRepository = chatRepository;
         this.chatMapper = chatMapper;
         this.taskRegistry = taskRegistry;
 
-        this.baseCompletionRequest = new ChatCompletionRequest(
+        this.baseCompletionRequest = new AiChatSession(
                 List.of(new Message("system", promptLoader.loadPromptText("BasePrompt.txt")))
         );
+        this.toolExecutor = toolExecutor;
     }
 
     @Autowired
@@ -58,7 +62,38 @@ public class MainAiAgentImpl implements AiAgent {
         this.aiWebClient = webClient;
     }
 
-    private AiAnswer requestToGpt(ChatCompletionRequest completionRequest) {
+
+    @Override
+    public Optional<AiAnswer> noContextAsk(String chatId, String prompt) {
+        Chat chat = chatRepository.findByIdWithMessages(chatId)
+                .orElseGet(() -> {
+                    Chat newChat = new Chat();
+                    newChat.setId(chatId);
+                    chatRepository.save(newChat);
+                    return newChat;
+                });
+        AiTask task = chat.getCurrentTask();
+
+        var currentTask = taskRegistry.getTask(task);
+
+        if (currentTask == null) {
+            log.warn("Task not found: {}", task);
+            return Optional.empty();
+        }
+        AiChatSession taskCompletionRequest = currentTask.getAiChatSession();
+
+        AiChatSession aiChatSession = new AiChatSession();
+        aiChatSession.addChatCompletionRequest(this.baseCompletionRequest);
+        aiChatSession.addChatCompletionRequest(taskCompletionRequest);
+
+        AiAnswer answer = requestToGpt(aiChatSession);
+
+        chatRepository.saveMessage(chatId, answer.getAnswerToUser(), "assistant");
+
+        return Optional.of(answer);
+    }
+
+    private AiAnswer requestToGpt(AiChatSession completionRequest) {
         log.info("Sending chat completion request: {}", completionRequest);
 
         String responseBody = aiWebClient.post()
@@ -78,25 +113,29 @@ public class MainAiAgentImpl implements AiAgent {
 
         log.info("Response: {}", root);
 
-        String assistantMessage = root.path("choices")
-                .path(0)
-                .path("message")
-                .path("content")
-                .asText(null);
+        JsonNode messageNode = root.path("choices").path(0).path("message");
+        String assistantMessage = messageNode.path("content").asText(null);
+        JsonNode toolCalls = messageNode.path("tool_calls");
 
-        return new AiAnswer(assistantMessage);
+        return new AiAnswer(assistantMessage, toolCalls);
+    }
+
+    private Optional<AiAnswer> getAiAnswer(String chatId, Chat chat, AiAgentTask currentTask) {
+        chatRepository.save(chat);
+
+        AiChatSession aiChatSession = chatMapper.toDto(chat);
+        aiChatSession.addChatCompletionRequest(this.baseCompletionRequest);
+        aiChatSession.addChatCompletionRequest(currentTask.getAiChatSession());
+
+        AiAnswer answer = requestToGpt(aiChatSession);
+        toolExecutor.executeTool(answer, chatId);
+        chatRepository.saveMessage(chatId, answer.getAnswerToUser(), "assistant");
+
+        return Optional.of(answer);
     }
 
     @Override
     public Optional<AiAnswer> ask(String chatId, String userText) {
-        AiTask task = AiTask.TALK;
-
-        var currentTask = taskRegistry.getTask(task);
-
-        if (currentTask == null) {
-            log.warn("Task not found: {}", task);
-            return Optional.empty();
-        }
 
         Chat chat = chatRepository.findByIdWithMessages(chatId)
                 .orElseGet(() -> {
@@ -105,24 +144,21 @@ public class MainAiAgentImpl implements AiAgent {
                     chatRepository.save(newChat);
                     return newChat;
                 });
+        AiTask task = chat.getCurrentTask();
+
+        var currentTask = taskRegistry.getTask(task);
+
+        if (currentTask == null) {
+            log.warn("Task not found: {}", task);
+            return Optional.empty();
+        }
 
         SavedMessage userMessage = new SavedMessage();
         userMessage.setRole("user");
         userMessage.setMessage(userText);
         userMessage.setChat(chat);
-
         chat.getMessages().add(userMessage);
-        chatRepository.save(chat);
 
-        ChatCompletionRequest chatCompletionRequest = chatMapper.toDto(chat);
-
-        chatCompletionRequest.addChatCompletionRequest(this.baseCompletionRequest);
-        chatCompletionRequest.addChatCompletionRequest(currentTask.getCompletionRequest());
-
-        AiAnswer answer = requestToGpt(chatCompletionRequest);
-
-        chatRepository.saveMessage(chatId, answer.getAnswerToUser(), "assistant");
-
-        return Optional.of(answer);
+        return getAiAnswer(chatId, chat, currentTask);
     }
 }

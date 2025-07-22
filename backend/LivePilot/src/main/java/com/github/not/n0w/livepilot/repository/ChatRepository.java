@@ -1,7 +1,6 @@
 package com.github.not.n0w.livepilot.repository;
 
 import com.github.not.n0w.livepilot.model.Chat;
-import com.github.not.n0w.livepilot.model.User;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -20,6 +19,4 @@ public interface ChatRepository extends JpaRepository<Chat, String> {
     @Query(nativeQuery = true, value = "INSERT INTO saved_messages (chat_id, message, role) VALUES (?, ?, ?)")
     void saveMessage(String chatId, String message, String role);
 
-    @Query("SELECT c.user FROM Chat c WHERE c.id = :chatId")
-    User findUserByChatId(@Param("chatId") String chatId);
 }

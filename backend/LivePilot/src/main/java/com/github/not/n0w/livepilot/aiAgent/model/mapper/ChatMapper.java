@@ -1,7 +1,7 @@
 package com.github.not.n0w.livepilot.aiAgent.model.mapper;
 
 
-import com.github.not.n0w.livepilot.aiAgent.model.ChatCompletionRequest;
+import com.github.not.n0w.livepilot.aiAgent.model.AiChatSession;
 import com.github.not.n0w.livepilot.aiAgent.model.Message;
 import com.github.not.n0w.livepilot.model.Chat;
 import com.github.not.n0w.livepilot.model.SavedMessage;
@@ -17,7 +17,7 @@ public interface ChatMapper {
     ChatMapper INSTANCE = Mappers.getMapper(ChatMapper.class);
 
     @Mapping(target = "messages", source = "messages")
-    ChatCompletionRequest toDto(Chat chat);
+    AiChatSession toDto(Chat chat);
 
     @Mapping(target = "content", source = "message")
     @Mapping(target = "role", source = "role")

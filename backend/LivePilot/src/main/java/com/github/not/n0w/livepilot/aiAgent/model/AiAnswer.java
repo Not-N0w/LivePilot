@@ -1,5 +1,6 @@
 package com.github.not.n0w.livepilot.aiAgent.model;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
@@ -7,5 +8,5 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AiAnswer {
     private final String answerToUser;
-    // todo tool answer
+    private final JsonNode toolCalls;
 }

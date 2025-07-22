@@ -10,56 +10,24 @@ CREATE TYPE dialog_style AS ENUM (
     'interrogator'  -- Допрашивающий: задаёт наводящие, уточняющие, иногда провокационные вопросы
 );
 
-
-CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(30),
-    gender CHAR(1) CHECK (gender IN ('М', 'Ж')),
-    usual_dialog_style dialog_style DEFAULT 'base'
-);
-
-
-CREATE TABLE body_metrics (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER,
-    created_on DATE DEFAULT NOW(),
-    metric_value INTEGER CHECK (metric_value >= 0 AND metric_value <= 100),
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-
-CREATE TABLE society_metrics (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER,
-    created_on DATE DEFAULT NOW(),
-    metric_value INTEGER CHECK (metric_value >= 0 AND metric_value <= 100),
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-
-CREATE TABLE mind_metrics (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER,
-    created_on DATE DEFAULT NOW(),
-    metric_value INTEGER CHECK (metric_value >= 0 AND metric_value <= 100),
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-
-CREATE TABLE growth_metrics (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER,
-    created_on DATE DEFAULT NOW(),
-    metric_value INTEGER CHECK (metric_value >= 0 AND metric_value <= 100),
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-
-
-
-
-
 CREATE TABLE chats (
    id VARCHAR(50) PRIMARY KEY,
-   user_id INTEGER,
-   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+   name VARCHAR(30),
+   gender CHAR(1) CHECK (gender IN ('М', 'Ж')),
+   usual_dialog_style dialog_style DEFAULT 'base',
+   task VARCHAR(20)
 );
+
+
+CREATE TABLE metrics (
+    id SERIAL PRIMARY KEY,
+    chat_id VARCHAR(50),
+    metric_type VARCHAR(30) NOT NULL, 
+    created_on DATE DEFAULT NOW(),
+    metric_value INTEGER CHECK (metric_value >= 0 AND metric_value <= 100),
+    FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE
+);
+
 
 CREATE TABLE saved_messages (
     id SERIAL PRIMARY KEY,

@@ -1,16 +1,14 @@
 package com.github.not.n0w.livepilot.aiAgent.model;
 
+import com.github.not.n0w.livepilot.aiAgent.tool.Tool;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 @Component
@@ -18,11 +16,13 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChatCompletionRequest {
-    private String model = "qwen/qwen3-235b-a22b";
+public class AiChatSession {
+    private String model = "openai/gpt-4o-2024-11-20";
     private List<Message> messages = new ArrayList<>();
+    @Setter
+    private List<Tool> tools = new ArrayList<>();
 
-    public ChatCompletionRequest(List<Message> messages) {
+    public AiChatSession(List<Message> messages) {
         this.messages = messages;
     }
 
@@ -40,12 +40,14 @@ public class ChatCompletionRequest {
         messages.add(message);
         sortMessages();
     }
-    public void addChatCompletionRequest(ChatCompletionRequest chatCompletionRequest) {
-        if(!this.model.equals(chatCompletionRequest.getModel())) {
+    public void addChatCompletionRequest(AiChatSession aiChatSession) {
+        this.tools.addAll(aiChatSession.getTools());
+
+        if(!this.model.equals(aiChatSession.getModel())) {
             log.warn("Chat completion request models don't match");
         }
         try {
-            chatCompletionRequest.getMessages().forEach(message -> this.messages.add(1, message));
+            aiChatSession.getMessages().forEach(message -> this.messages.add(1, message));
             sortMessages();
             return;
         }
@@ -53,7 +55,15 @@ public class ChatCompletionRequest {
             log.warn("Chat completion request is empty");
         }
 
-        messages.addAll(chatCompletionRequest.getMessages());
+        messages.addAll(aiChatSession.getMessages());
 
     }
+
+    public void addTool(Tool tool) {
+        if (this.tools == null) {
+            this.tools = new ArrayList<>();
+        }
+        this.tools.add(tool);
+    }
+
 }

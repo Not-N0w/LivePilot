@@ -1,9 +1,9 @@
 package com.github.not.n0w.livepilot.aiAgent;
 
-import com.github.not.n0w.livepilot.aiAgent.model.ChatCompletionRequest;
+import com.github.not.n0w.livepilot.aiAgent.model.AiChatSession;
 
 public interface ChatEnvironmentBuilder {
-    public ChatCompletionRequest getUserInfo(String chatId);
-    public ChatCompletionRequest getRemembered(String chatId);
-    public ChatCompletionRequest getEnvironment(String chatId);
+    public AiChatSession getUserInfo(String chatId);
+    public AiChatSession getRemembered(String chatId);
+    public AiChatSession getEnvironment(String chatId);
 }

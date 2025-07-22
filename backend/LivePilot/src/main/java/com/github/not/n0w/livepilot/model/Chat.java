@@ -19,11 +19,8 @@ public class Chat {
 
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<SavedMessage> messages = new ArrayList<>();
-    @Transient
-    private AiTask currentTask = AiTask.TALK;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @Column(name="task")
+    private AiTask currentTask = AiTask.TALK;
 
 }
