@@ -1,4 +1,4 @@
-package com.github.not.n0w.livepilot.aiAgent;
+package com.github.not.n0w.livepilot.aiEngine.prompt;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;

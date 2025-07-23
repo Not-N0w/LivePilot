@@ -1,12 +1,22 @@
 package com.github.not.n0w.livepilot.model;
 
+import lombok.Getter;
+
+@Getter
 public enum DialogStyle {
-    BASE,
-    CASUAL_FRIEND,
-    HYPER_HELPER, // no prompt
-    DRY_EXPERT,
-    COACH, // no prompt
-    JOKER, // no prompt
-    THERAPIST, // no prompt
-    INTERROGATOR // no prompt
+    BASE("BaseStylePrompt"),
+    CASUAL_FRIEND("CasualFriendStylePrompt"),
+    HYPER_HELPER("HyperHelperStylePrompt"),
+    DRY_EXPERT("DryExpertStylePrompt"),
+    COACH("CoachStylePrompt"),
+    JOKER("JokerStylePrompt"),
+    THERAPIST("TherapistStylePrompt"),
+    INTERROGATOR("InterrogatorStylePrompt");
+
+    private final String stylePromptName;
+
+    DialogStyle(String stylePromptName) {
+        this.stylePromptName = stylePromptName;
+    }
+
 }

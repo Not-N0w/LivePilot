@@ -1,4 +1,4 @@
-package com.github.not.n0w.livepilot.aiAgent.model;
+package com.github.not.n0w.livepilot.aiEngine.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

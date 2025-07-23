@@ -1,6 +1,5 @@
 package com.github.not.n0w.livepilot.repository;
 
-import com.github.not.n0w.livepilot.aiAgent.task.tasks.getMetrics.MetricType;
 import com.github.not.n0w.livepilot.model.Metric;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

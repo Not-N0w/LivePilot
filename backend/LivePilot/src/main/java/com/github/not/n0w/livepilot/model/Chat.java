@@ -1,12 +1,8 @@
 package com.github.not.n0w.livepilot.model;
 
-import com.github.not.n0w.livepilot.aiAgent.task.AiAgentTask;
-import com.github.not.n0w.livepilot.aiAgent.task.AiTask;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @Entity
@@ -17,10 +13,14 @@ public class Chat {
     @Column(name = "id")
     private String id;
 
-    @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<SavedMessage> messages = new ArrayList<>();
+    @Column(name="name")
+    private String name;
 
-    @Column(name="task")
-    private AiTask currentTask = AiTask.TALK;
+    @Column(name="gender")
+    private String gender;
+
+    @Column(name = "usual_dialog_style")
+    @Enumerated(EnumType.STRING)
+    private DialogStyle usualDialogStyle = DialogStyle.BASE;
 
 }

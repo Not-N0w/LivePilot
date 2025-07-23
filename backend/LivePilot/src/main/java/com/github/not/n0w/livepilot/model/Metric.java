@@ -1,6 +1,5 @@
 package com.github.not.n0w.livepilot.model;
 
-import com.github.not.n0w.livepilot.aiAgent.task.tasks.getMetrics.MetricType;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -17,8 +16,6 @@ public class Metric {
 
     private String chatId;
 
-    @Enumerated(EnumType.STRING)
-    private MetricType metricType;
 
     private LocalDate createdOn = LocalDate.now();
 
