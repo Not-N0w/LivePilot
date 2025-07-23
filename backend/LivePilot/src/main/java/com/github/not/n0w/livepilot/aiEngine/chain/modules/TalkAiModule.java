@@ -38,6 +38,7 @@ public class TalkAiModule implements AiModule {
     @Override
     public AiResponse passThrough(ChainRequest request) {
         ChatSession chatSession = request.getChatSession();
+        log.info("Full request: {}", chatSession);
         AiResponse aiResponse = aiTextClient.ask(chatSession);
         if(isTerminal) {
             return aiResponse;

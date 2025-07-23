@@ -16,9 +16,11 @@ public class Metric {
 
     private String chatId;
 
-
     private LocalDate createdOn = LocalDate.now();
 
     private Integer metricValue;
+
+    @Enumerated(EnumType.STRING)
+    private MetricType metricType;
 
 }

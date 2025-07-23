@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.not.n0w.livepilot.aiEngine.model.AiResponse;
 import com.github.not.n0w.livepilot.aiEngine.model.ChatSession;
 import com.github.not.n0w.livepilot.aiEngine.model.Message;
+import com.github.not.n0w.livepilot.aiEngine.tool.ToolCall;
 import com.github.not.n0w.livepilot.config.AiConfig;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,14 +32,7 @@ public class AiTextClient {
 
     private final AiConfig aiConfig;
 
-    public AiResponse ask(ChatSession chatSession) {
-
-        String responseBody = aiWebClient.post()
-                .bodyValue(new OpenAiApiRequest(aiConfig.getAiModel(), chatSession))
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
-
+    private AiResponse processAiResponse(String responseBody) {
         JsonNode root;
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -56,14 +50,42 @@ public class AiTextClient {
 
         return new AiResponse(assistantMessage, toolCalls);
     }
+
+    public AiResponse ask(ChatSession chatSession, List<ToolCall> tools) {
+        String responseBody = aiWebClient.post()
+                .bodyValue(new OpenAiApiRequest(aiConfig.getAiModel(), chatSession, tools))
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        return processAiResponse(responseBody);
+    }
+
+    public AiResponse ask(ChatSession chatSession) {
+        String responseBody = aiWebClient.post()
+                .bodyValue(new OpenAiApiRequest(aiConfig.getAiModel(), chatSession))
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        return processAiResponse(responseBody);
+    }
     @Getter
     static class OpenAiApiRequest {
         String model;
         List<Message> messages;
+        List<ToolCall> tools;
         public OpenAiApiRequest(String model, ChatSession chatSession) {
             this.model = model;
             this.messages = new java.util.ArrayList<>(chatSession.getSystemMessages());
             this.messages.addAll(chatSession.getChatMessages());
+        }
+
+        public OpenAiApiRequest(String model, ChatSession chatSession, List<ToolCall> tools) {
+            this.model = model;
+            this.messages = new java.util.ArrayList<>(chatSession.getSystemMessages());
+            this.messages.addAll(chatSession.getChatMessages());
+            this.tools = tools;
         }
 
     }
