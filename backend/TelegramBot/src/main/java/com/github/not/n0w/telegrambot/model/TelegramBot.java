@@ -38,10 +38,13 @@ public class TelegramBot extends TelegramLongPollingBot {
 
             String response = contentHandler.handleIncomingMessage(message);
 
-            execute(SendMessage.builder()
+            execute(
+                    SendMessage.builder()
                     .chatId(chatId.toString())
                     .text(response)
-                    .build());
+                    .parseMode("Markdown")
+                    .build()
+            );
 
         } catch (TelegramApiException | InterruptedException e) {
             log.error("Error in bot processing", e);
