@@ -62,7 +62,7 @@ public class AiTextClient {
         List<Message> messages;
         public OpenAiApiRequest(String model, ChatSession chatSession) {
             this.model = model;
-            this.messages = chatSession.getSystemMessages();
+            this.messages = new java.util.ArrayList<>(chatSession.getSystemMessages());
             this.messages.addAll(chatSession.getChatMessages());
         }
 

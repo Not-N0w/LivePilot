@@ -19,6 +19,10 @@ public class Chat {
     @Column(name="gender")
     private String gender;
 
+    @Column
+    @Enumerated(EnumType.STRING)
+    private AiTaskType task = AiTaskType.TALK;
+
     @Column(name = "usual_dialog_style")
     @Enumerated(EnumType.STRING)
     private DialogStyle usualDialogStyle = DialogStyle.BASE;

@@ -2,6 +2,7 @@ package com.github.not.n0w.livepilot.aiEngine.chain;
 
 import com.github.not.n0w.livepilot.aiEngine.model.AiRequest;
 import com.github.not.n0w.livepilot.aiEngine.model.AiResponse;
+import com.github.not.n0w.livepilot.aiEngine.model.ChainRequest;
 import com.github.not.n0w.livepilot.aiEngine.model.ChatSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -28,8 +29,8 @@ public class AiModuleChain {
         log.info("Last added AiModule: {}", entryAiModule.getName());
     }
 
-    public AiResponse execute(ChatSession chatSession) {
-        return entryAiModule.passThrough(chatSession);
+    public AiResponse execute(ChainRequest request) {
+        return entryAiModule.passThrough(request);
     }
 
 }

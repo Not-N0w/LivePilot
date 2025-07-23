@@ -2,10 +2,7 @@ package com.github.not.n0w.livepilot.aiEngine;
 
 import com.github.not.n0w.livepilot.aiEngine.chain.AiModuleChain;
 import com.github.not.n0w.livepilot.aiEngine.chain.modules.TalkAiModule;
-import com.github.not.n0w.livepilot.aiEngine.model.AiRequest;
-import com.github.not.n0w.livepilot.aiEngine.model.AiResponse;
-import com.github.not.n0w.livepilot.aiEngine.model.ChatSession;
-import com.github.not.n0w.livepilot.aiEngine.model.Message;
+import com.github.not.n0w.livepilot.aiEngine.model.*;
 import com.github.not.n0w.livepilot.aiEngine.prompt.BasePromptBuilder;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +21,8 @@ public class AiManager {
         ChatSession chatSession = promptBuilder.getSystemMessages(request.getChat());
         chatSession.setChatMessages(request.getMessages());
 
-        return chain.execute(chatSession);
+        return chain.execute(
+                new ChainRequest(chatSession, request.getChat().getTask(), request.getChat())
+        );
     }
 }

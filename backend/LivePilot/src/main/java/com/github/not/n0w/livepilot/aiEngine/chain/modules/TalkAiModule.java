@@ -3,6 +3,7 @@ package com.github.not.n0w.livepilot.aiEngine.chain.modules;
 import com.github.not.n0w.livepilot.aiEngine.AiTextClient;
 import com.github.not.n0w.livepilot.aiEngine.chain.AiModule;
 import com.github.not.n0w.livepilot.aiEngine.model.AiResponse;
+import com.github.not.n0w.livepilot.aiEngine.model.ChainRequest;
 import com.github.not.n0w.livepilot.aiEngine.model.ChatSession;
 import com.github.not.n0w.livepilot.aiEngine.model.Message;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,8 @@ public class TalkAiModule implements AiModule {
     }
 
     @Override
-    public AiResponse passThrough(ChatSession chatSession) {
+    public AiResponse passThrough(ChainRequest request) {
+        ChatSession chatSession = request.getChatSession();
         AiResponse aiResponse = aiTextClient.ask(chatSession);
         if(isTerminal) {
             return aiResponse;
@@ -44,7 +46,8 @@ public class TalkAiModule implements AiModule {
         chatSession.addChatMessage(
                 new Message("assistant", aiResponse.getAnswerToUser())
         );
-        return nextAiModule.passThrough(chatSession);
+        request.setChatSession(chatSession);
+        return nextAiModule.passThrough(request);
     }
 
     @Override
