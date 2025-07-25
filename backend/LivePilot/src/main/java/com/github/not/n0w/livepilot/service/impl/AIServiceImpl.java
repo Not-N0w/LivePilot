@@ -11,9 +11,15 @@ import com.github.not.n0w.livepilot.model.SavedMessage;
 import com.github.not.n0w.livepilot.repository.ChatRepository;
 import com.github.not.n0w.livepilot.repository.SavedMessagesRepository;
 import com.github.not.n0w.livepilot.service.AIService;
+import com.github.not.n0w.livepilot.service.BotInteractionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,6 +31,12 @@ public class AIServiceImpl implements AIService {
     private final AiManager aiManager;
     private final ChatRepository chatRepository;
     private final SavedMessagesRepository savedMessagesRepository;
+    private final BotInteractionService botInteractionService;
+
+    @Override
+    public void pushMessageToUser(String chatId, String message) {
+        botInteractionService.pushMessage(chatId, message);
+    }
 
     @Override
     public String sendMessage(String chatId, String userText) {

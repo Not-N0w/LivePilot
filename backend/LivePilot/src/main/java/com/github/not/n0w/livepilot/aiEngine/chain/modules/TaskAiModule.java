@@ -20,7 +20,7 @@ public class TaskAiModule implements AiModule  {
 
     @Override
     public AiResponse passThrough(ChainRequest request) {
-        var task = taskManager.getTask(request.getTaskType());
+        var task = taskManager.getTask(request.getChat().getTask());
         ChatSession chatSession = task.execute(request.getChatSession(), request.getChat());
         request.setChatSession(chatSession);
         return nextAiModule.passThrough(request);

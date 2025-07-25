@@ -105,13 +105,17 @@ public class GetMetricsTask implements AiTask {
         String analyzePrompt = promptLoader.loadPromptText("taskPrompts/getMetrics/GetMetricsAnalyzePrompt.txt");
         ChatSession analyzeMetricsChatSession = new ChatSession(
                 List.of(new Message("system", analyzePrompt)),
-                new ArrayList<>()//chatSession.getChatMessages()
+                chatSession.getChatMessages()
         );
         AiResponse response = aiTextClient.ask(analyzeMetricsChatSession, List.of(toolRegistry.getSetMetricsToolCall()));
 
         if(response.getToolCalls().isEmpty()) {
             String prompt = promptLoader.loadPromptText("taskPrompts/getMetrics/GetMetricsPrompt.txt");
             chatSession.addSystemMessage(prompt);
+            if(chat.getExtraState() == 1) {
+                chat.setExtraState(0);
+                chatSession.setChatMessages(new ArrayList<>());
+            }
         }
         else {
             log.info("Tool call detected: {}", response.getToolCalls());
@@ -119,11 +123,15 @@ public class GetMetricsTask implements AiTask {
             chat.setTask(AiTaskType.TALK);
 
             chatRepository.save(chat);
-            metricRepository.saveAll(extractMetricsFromJson(response.getToolCalls(), chat.getId()));
+            List<Metric> metrics = extractMetricsFromJson(response.getToolCalls(), chat.getId());
+            metricRepository.saveAll(metrics);
             log.info("Metrics saved to database");
 
             String prompt = promptLoader.loadPromptText("taskPrompts/getMetrics/GetMetricsAcceptPrompt.txt");
             chatSession.addSystemMessage(prompt);
+
+            String metricsStr = "Текущие метрики пользователя:\n" +  metrics.toString();
+            chatSession.addSystemMessage(metricsStr);
         }
         return chatSession;
     }

@@ -27,4 +27,6 @@ public class Chat {
     @Enumerated(EnumType.STRING)
     private DialogStyle usualDialogStyle = DialogStyle.BASE;
 
+    @Transient
+    private int extraState = 0;
 }

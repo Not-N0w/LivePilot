@@ -4,24 +4,10 @@ import lombok.Getter;
 
 @Getter
 public enum MetricType {
-    SLEEP("sleep"),
-    ENERGY("energy"),
-    NUTRITION("nutrition"),
-    ACTIVITY("activity"),
-    BIOMETRICS("biometrics"),
-    MOOD("mood"),
-    ANXIETY_CALM("anxiety_calm"),
-    STRESS_RELAXATION("stress_relaxation"),
-    WORK_RELATIONSHIPS("work_relationships"),
-    ENVIRONMENT("environment"),
-    FAMILY("family"),
-    NETWORKING("networking"),
-    CLARITY_OF_PLANS("clarity_of_plans"),
-    GOAL_FOCUS("goal_focus"),
-    GOAL_PROGRESS("goal_progress"),
-    LEARNING("learning"),
-    HOBBY_CREATIVITY("hobby_creativity");
-
+    SOCIAL_ENVIRONMENT("social_environment"),
+    MENTAL_STATE("mental_state"),
+    GOALS_AND_ACTIONS("goals_and_actions"),
+    PHYSICAL_STATE("physical_state");
     private final String key;
 
     MetricType(String key) {

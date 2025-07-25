@@ -1,6 +1,5 @@
 package com.github.not.n0w.livepilot.aiEngine.model;
 
-import com.github.not.n0w.livepilot.model.AiTaskType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

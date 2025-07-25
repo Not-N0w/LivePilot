@@ -19,23 +19,10 @@ public class ToolRegistry {
                                         {
                                           "type": "object",
                                           "properties": {
-                                            "sleep": { "type": "integer" },
-                                            "energy": { "type": "integer" },
-                                            "nutrition": { "type": "integer" },
-                                            "activity": { "type": "integer" },
-                                            "biometrics": { "type": "integer" },
-                                            "mood": { "type": "integer" },
-                                            "anxiety_calm": { "type": "integer" },
-                                            "stress_relaxation": { "type": "integer" },
-                                            "work_relationships": { "type": "integer" },
-                                            "environment": { "type": "integer" },
-                                            "family": { "type": "integer" },
-                                            "networking": { "type": "integer" },
-                                            "clarity_of_plans": { "type": "integer" },
-                                            "goal_focus": { "type": "integer" },
-                                            "goal_progress": { "type": "integer" },
-                                            "learning": { "type": "integer" },
-                                            "hobby_creativity": { "type": "integer" }
+                                            "physical_state": { "type": "integer" },
+                                            "mental_state": { "type": "integer" },
+                                            "social_environment": { "type": "integer" },
+                                            "goals_and_actions": { "type": "integer" }
                                           }
                                         }
                                     """)

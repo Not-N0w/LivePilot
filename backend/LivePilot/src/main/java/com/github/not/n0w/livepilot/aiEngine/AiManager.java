@@ -22,7 +22,7 @@ public class AiManager {
         chatSession.setChatMessages(request.getMessages());
 
         return chain.execute(
-                new ChainRequest(chatSession, request.getChat().getTask(), request.getChat())
+                new ChainRequest(chatSession, request.getChat())
         );
     }
 }
