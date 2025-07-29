@@ -12,7 +12,7 @@ CREATE TABLE metrics (
     id SERIAL PRIMARY KEY,
     chat_id VARCHAR(50),
     metric_type VARCHAR(30) NOT NULL, 
-    created_on DATE DEFAULT NOW(),
+    created_at TIMESTAMP DEFAULT NOW(),
     metric_value INTEGER CHECK (metric_value >= 0 AND metric_value <= 100),
     FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE
 );

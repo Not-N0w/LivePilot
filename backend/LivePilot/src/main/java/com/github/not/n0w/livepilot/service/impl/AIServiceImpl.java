@@ -5,6 +5,7 @@ import com.github.not.n0w.livepilot.aiEngine.chain.AiModuleChain;
 import com.github.not.n0w.livepilot.aiEngine.model.AiRequest;
 import com.github.not.n0w.livepilot.aiEngine.model.AiResponse;
 import com.github.not.n0w.livepilot.aiEngine.model.Message;
+import com.github.not.n0w.livepilot.model.AiTaskType;
 import com.github.not.n0w.livepilot.model.Chat;
 import com.github.not.n0w.livepilot.model.DialogStyle;
 import com.github.not.n0w.livepilot.model.SavedMessage;
@@ -45,6 +46,7 @@ public class AIServiceImpl implements AIService {
                     Chat newChat = new Chat();
                     newChat.setId(chatId);
                     newChat.setUsualDialogStyle(DialogStyle.BASE);
+                    newChat.setTask(AiTaskType.ACQUAINTANCE);
                     chatRepository.save(newChat);
                     log.info("New chat created: {}", newChat);
                     return newChat;

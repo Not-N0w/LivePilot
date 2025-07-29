@@ -102,25 +102,31 @@ public class GetMetricsTask implements AiTask {
 
     @Override
     public ChatSession execute(ChatSession chatSession, Chat chat) {
-        String analyzePrompt = promptLoader.loadPromptText("taskPrompts/getMetrics/GetMetricsAnalyzePrompt.txt");
-        ChatSession analyzeMetricsChatSession = new ChatSession(
-                List.of(new Message("system", analyzePrompt)),
-                chatSession.getChatMessages()
-        );
-        AiResponse response = aiTextClient.ask(analyzeMetricsChatSession, List.of(toolRegistry.getSetMetricsToolCall()));
-
-        if(response.getToolCalls().isEmpty()) {
+        AiResponse response = null;
+        if(chat.getExtraState() != 1) {
+            String analyzePrompt = promptLoader.loadPromptText("taskPrompts/getMetrics/GetMetricsAnalyzePrompt.txt");
+            ChatSession analyzeMetricsChatSession = new ChatSession(
+                    List.of(new Message("system", analyzePrompt)),
+                    chatSession.getChatMessages()
+            );
+           response = aiTextClient.ask(analyzeMetricsChatSession, List.of(toolRegistry.getSetMetricsToolCall()));
+        }
+        boolean isNoToolCalls = response == null || response.getToolCalls().isEmpty();
+        if(isNoToolCalls) {
             String prompt = promptLoader.loadPromptText("taskPrompts/getMetrics/GetMetricsPrompt.txt");
             chatSession.addSystemMessage(prompt);
-            if(chat.getExtraState() == 1) {
-                chat.setExtraState(0);
-                chatSession.setChatMessages(new ArrayList<>());
-            }
+            chatSession.setChatMessages(new ArrayList<>());
         }
         else {
             log.info("Tool call detected: {}", response.getToolCalls());
 
             chat.setTask(AiTaskType.TALK);
+
+            List<Metric> previousMetrics = metricRepository.findLatestMetricsByChatId(chat.getId());
+
+
+            String metricsStr = "Прошлые метрики пользователя: " +
+                    (previousMetrics == null ? "" : previousMetrics.toString()) + '\n';
 
             chatRepository.save(chat);
             List<Metric> metrics = extractMetricsFromJson(response.getToolCalls(), chat.getId());
@@ -130,7 +136,8 @@ public class GetMetricsTask implements AiTask {
             String prompt = promptLoader.loadPromptText("taskPrompts/getMetrics/GetMetricsAcceptPrompt.txt");
             chatSession.addSystemMessage(prompt);
 
-            String metricsStr = "Текущие метрики пользователя:\n" +  metrics.toString();
+
+            metricsStr += "Новые метрики пользователя:\n" +  metrics.toString();
             chatSession.addSystemMessage(metricsStr);
         }
         return chatSession;

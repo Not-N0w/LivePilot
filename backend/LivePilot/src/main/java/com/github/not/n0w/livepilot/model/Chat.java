@@ -21,7 +21,7 @@ public class Chat {
 
     @Column
     @Enumerated(EnumType.STRING)
-    private AiTaskType task = AiTaskType.TALK;
+    private AiTaskType task = AiTaskType.ACQUAINTANCE;
 
     @Column(name = "usual_dialog_style")
     @Enumerated(EnumType.STRING)

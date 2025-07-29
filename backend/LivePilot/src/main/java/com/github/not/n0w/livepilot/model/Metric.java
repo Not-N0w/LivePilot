@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "metrics")
@@ -16,7 +17,7 @@ public class Metric {
 
     private String chatId;
 
-    private LocalDate createdOn = LocalDate.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     private Integer metricValue;
 
