@@ -33,5 +33,27 @@ public class ToolRegistry {
             return null;
         }
     }
-
+    public ToolCall getSetUserInfoToolCall() {
+        try {
+            return new ToolCall(
+                    "function",
+                    new ToolCall.Function(
+                            "set_user_info",
+                            "Extracts user info from the user's chat.",
+                            new ObjectMapper().readTree("""
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "name": { "type": "string" },
+                                            "gender": { "type": "string" }
+                                          }
+                                        }
+                                    """)
+                    )
+            );
+        } catch (JsonProcessingException e) {
+            log.info("Error parsing tool call: {}", e.getMessage());
+            return null;
+        }
+    }
 }
