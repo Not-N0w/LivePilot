@@ -14,9 +14,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientException;
+import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
+import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
 
 @Component
@@ -52,14 +58,39 @@ public class AiTextClient {
     }
 
     public AiResponse ask(ChatSession chatSession, List<ToolCall> tools) {
-        String responseBody = aiWebClient.post()
-                .bodyValue(new OpenAiApiRequest(aiConfig.getAiModel(), chatSession, tools))
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
+        OpenAiApiRequest requestPayload = new OpenAiApiRequest(
+                aiConfig.getAiModel(), chatSession, tools
+        );
 
-        return processAiResponse(responseBody);
+        try {
+            String responseBody = aiWebClient.post()
+                    .bodyValue(requestPayload)
+                    .retrieve()
+                    .onStatus(HttpStatusCode::isError, clientResponse -> {
+                        log.error("AI API error: HTTP {}", clientResponse.statusCode());
+                        return clientResponse.bodyToMono(String.class)
+                                .flatMap(errorBody -> {
+                                    log.error("Error body: {}", errorBody);
+                                    return Mono.error(new RuntimeException("AI API error: " + errorBody));
+                                });
+                    })
+                    .bodyToMono(String.class)
+                    .retryWhen(
+                            Retry.backoff(3, Duration.ofSeconds(1))
+                                    .filter(throwable -> throwable instanceof IOException || throwable instanceof WebClientException)
+                                    .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> retrySignal.failure())
+                    )
+                    .doOnError(error -> log.error("Request to AI failed", error))
+                    .block();
+
+            return processAiResponse(responseBody);
+
+        } catch (Exception e) {
+            log.error("AI communication failed: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to get AI response", e);
+        }
     }
+
 
     public AiResponse ask(ChatSession chatSession) {
         String responseBody = aiWebClient.post()
