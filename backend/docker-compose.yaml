@@ -1,3 +1,5 @@
+version: '3.9'
+
 services:
   server:
     depends_on:
@@ -11,12 +13,10 @@ services:
     env_file:
       - .env.server
     healthcheck:
-      test: [ "CMD", "pgrep", "java" ]
+      test: ["CMD", "pgrep", "java"]
       interval: 5s
       retries: 3
     tty: true
-
-
 
   bot:
     depends_on:
@@ -31,16 +31,16 @@ services:
     env_file:
       - .env.bot
     healthcheck:
-      test: [ "CMD", "pgrep", "java" ]
+      test: ["CMD", "pgrep", "java"]
       interval: 5s
       retries: 3
     tty: true
 
-
-
   postgres:
     image: postgres
+    container_name: postgres-container
     volumes:
+      - pgdata:/var/lib/postgresql/data
       - ./database/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
@@ -53,7 +53,6 @@ services:
     env_file:
       - .env.postgres
 
-
   whisper-api:
     build:
       context: .
@@ -65,7 +64,10 @@ services:
     ports:
       - "8901:8901"
     environment:
-      - WHISPER_MODEL=turbo 
+      - WHISPER_MODEL=turbo
     volumes:
       - .:/app
     restart: unless-stopped
+
+volumes:
+  pgdata:

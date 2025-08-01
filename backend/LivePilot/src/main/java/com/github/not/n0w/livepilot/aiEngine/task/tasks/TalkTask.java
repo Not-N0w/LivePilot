@@ -20,7 +20,7 @@ public class TalkTask implements AiTask {
 
     @Override
     public ChatSession execute(ChatSession chatSession, Chat chat) {
-        String talkPrompt = promptLoader.loadPromptText("/taskPrompts/TalkPrompt.txt");
+        String talkPrompt = promptLoader.loadPromptText("taskPrompts/TalkPrompt.txt");
         chatSession.addSystemMessage(talkPrompt);
         return chatSession;
     }
