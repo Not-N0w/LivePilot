@@ -1,10 +1,10 @@
 package com.github.not.n0w.livepilot.model;
 
-import com.github.not.n0w.livepilot.aiAgent.task.tasks.getMetrics.MetricType;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "metrics")
@@ -17,11 +17,11 @@ public class Metric {
 
     private String chatId;
 
-    @Enumerated(EnumType.STRING)
-    private MetricType metricType;
-
-    private LocalDate createdOn = LocalDate.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     private Integer metricValue;
+
+    @Enumerated(EnumType.STRING)
+    private MetricType metricType;
 
 }
