@@ -5,15 +5,18 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-import java.util.List;
-
+import java.util.Optional;
 
 @Transactional
 public interface ChatRepository extends JpaRepository<Chat, String> {
 
-    @Transactional
+    @Query("SELECT c FROM Chat c LEFT JOIN FETCH c.messages WHERE c.id = :id")
+    Optional<Chat> findByIdWithMessages(@Param("id") String id);
+
     @Modifying
-    @Query("UPDATE Chat c SET c.task = 'GET_METRICS'")
-    int globalSetTaskGetMetrics();
+    @Query(nativeQuery = true, value = "INSERT INTO saved_messages (chat_id, message, role) VALUES (?, ?, ?)")
+    void saveMessage(String chatId, String message, String role);
+
 }

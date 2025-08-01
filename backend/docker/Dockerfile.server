@@ -1,17 +1,7 @@
-FROM gradle:8.4.0-jdk17 AS builder
-
-WORKDIR /app
-COPY LivePilot/ ./LivePilot/
-
-WORKDIR /app/LivePilot
-RUN gradle clean bootJar --no-daemon
-
-
 FROM eclipse-temurin:17-jdk
 
 EXPOSE 1804
+
 WORKDIR /app
-
-COPY --from=builder /app/LivePilot/build/libs/*.jar server.jar
-
+COPY LivePilot/build/libs/*.jar server.jar
 ENTRYPOINT ["java", "-jar", "server.jar"]

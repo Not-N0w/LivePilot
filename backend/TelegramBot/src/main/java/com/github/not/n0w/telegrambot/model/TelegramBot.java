@@ -28,39 +28,23 @@ public class TelegramBot extends TelegramLongPollingBot {
 
         log.info("Message received: {}", message.getText());
 
-        Thread typingThread = new Thread(() -> {
-            try {
-                while (!Thread.currentThread().isInterrupted()) {
-                    execute(SendChatAction.builder()
-                            .chatId(chatId.toString())
-                            .action("typing")
-                            .build());
-                    Thread.sleep(4000);
-                }
-            } catch (TelegramApiException e) {
-                log.warn("Failed to send typing", e);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        });
-
-        typingThread.start();
-
         try {
-            String response = contentHandler.handleIncomingMessage(message);
+            execute(SendChatAction.builder()
+                    .chatId(chatId.toString())
+                    .action("typing")
+                    .build());
 
-            typingThread.interrupt();
-            typingThread.join();
+            Thread.sleep(500);
+
+            String response = contentHandler.handleIncomingMessage(message);
 
             execute(SendMessage.builder()
                     .chatId(chatId.toString())
                     .text(response)
-                    .parseMode("Markdown")
                     .build());
 
         } catch (TelegramApiException | InterruptedException e) {
             log.error("Error in bot processing", e);
-            Thread.currentThread().interrupt();
         }
     }
 

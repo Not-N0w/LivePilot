@@ -1,9 +1,20 @@
+-- Типы поведения ИИ-агента в диалоге с пользователем
+CREATE TYPE dialog_style AS ENUM (
+    'base',         -- Нейтральный, сбалансированный стиль (по умолчанию)
+    'casual_friend',-- Ненавязчивый друг: дружелюбный, поддерживающий, непринуждённый
+    'hyper_helper', -- Гиперактивный помощник: энергичный, инициативный, немного навязчивый
+    'dry_expert',   -- Сухой эксперт: формальный, краткий, безэмоциональный
+    'coach',        -- Наставник: задаёт вопросы, помогает найти ответ самостоятельно
+    'joker',        -- Шутник: встраивает юмор, сарказм или мемы в диалог
+    'therapist',    -- Эмпатичный собеседник: поддерживает, выслушивает, помогает справиться с эмоциями
+    'interrogator'  -- Допрашивающий: задаёт наводящие, уточняющие, иногда провокационные вопросы
+);
 
 CREATE TABLE chats (
    id VARCHAR(50) PRIMARY KEY,
    name VARCHAR(30),
    gender CHAR(1) CHECK (gender IN ('М', 'Ж')),
-   usual_dialog_style VARCHAR(20) DEFAULT 'BASE',
+   usual_dialog_style dialog_style DEFAULT 'base',
    task VARCHAR(20)
 );
 
@@ -12,7 +23,7 @@ CREATE TABLE metrics (
     id SERIAL PRIMARY KEY,
     chat_id VARCHAR(50),
     metric_type VARCHAR(30) NOT NULL, 
-    created_at TIMESTAMP DEFAULT NOW(),
+    created_on DATE DEFAULT NOW(),
     metric_value INTEGER CHECK (metric_value >= 0 AND metric_value <= 100),
     FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE
 );
