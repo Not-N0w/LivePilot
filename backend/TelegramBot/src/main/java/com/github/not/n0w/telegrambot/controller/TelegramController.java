@@ -1,6 +1,7 @@
 package com.github.not.n0w.telegrambot.controller;
 
 import com.github.not.n0w.telegrambot.model.TelegramBot;
+import com.github.not.n0w.telegrambot.service.TelegramService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -16,19 +17,10 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @RequiredArgsConstructor
 @Slf4j
 public class TelegramController {
-    private final TelegramBot telegramBot;
+    private final TelegramService telegramService;
 
     @PostMapping(value = "/send", consumes = "application/x-www-form-urlencoded;charset=UTF-8")
     public void sendMessage(@RequestParam("chat_id") String chatId, @RequestParam("text") String text) {
-        SendMessage message = SendMessage.builder()
-                .chatId(chatId)
-                .text(text)
-                .build();
-
-        try {
-            telegramBot.execute(message);
-        } catch (TelegramApiException e) {
-            log.error("Error sending message", e);
-        }
+        telegramService.pushMessage(chatId, text);
     }
 }

@@ -24,6 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class AiTextClient {
     private WebClient aiWebClient;
+
     @Autowired
     @Qualifier("aiClient")
     public void setWebClient(WebClient webClient) {
@@ -62,19 +63,37 @@ public class AiTextClient {
     }
 
     public AiResponse ask(ChatSession chatSession) {
+        String requestJson = null;
+        try {
+            requestJson = new ObjectMapper().writeValueAsString(
+                    new OpenAiApiRequest(aiConfig.getAiModel(), chatSession)
+            );
+        } catch (JsonProcessingException e) {
+            log.error("Error parsing request: {}", requestJson);
+        }
+
+        log.info("Request JSON: {}", requestJson);
+
+        assert requestJson != null;
         String responseBody = aiWebClient.post()
-                .bodyValue(new OpenAiApiRequest(aiConfig.getAiModel(), chatSession))
-                .retrieve()
-                .bodyToMono(String.class)
+                .bodyValue(requestJson)
+                .exchangeToMono(response -> {
+                    log.info("Status: {}", response.statusCode());
+                    return response.bodyToMono(String.class);
+                })
                 .block();
+
+        log.info("Response body: {}", responseBody);
 
         return processAiResponse(responseBody);
     }
+
     @Getter
     static class OpenAiApiRequest {
         String model;
         List<Message> messages;
         List<ToolCall> tools;
+
         public OpenAiApiRequest(String model, ChatSession chatSession) {
             this.model = model;
             this.messages = new java.util.ArrayList<>(chatSession.getSystemMessages());

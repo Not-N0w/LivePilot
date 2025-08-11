@@ -2,6 +2,7 @@ package com.github.not.n0w.telegrambot.model;
 
 import com.github.not.n0w.telegrambot.ContentHandler;
 import com.github.not.n0w.telegrambot.config.BotConfig;
+import com.github.not.n0w.telegrambot.utils.MarkdownUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,8 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final BotConfig botConfig;
     private final ContentHandler contentHandler;
 
+
+
     @Override
     public void onUpdateReceived(Update update) {
         Message message = update.getMessage();
@@ -36,13 +39,15 @@ public class TelegramBot extends TelegramLongPollingBot {
 
             Thread.sleep(500);
 
-            String response = contentHandler.handleIncomingMessage(message);
+            String response = MarkdownUtil.escapeMarkdownV2(
+                    contentHandler.handleIncomingMessage(message)
+            );
 
             execute(
                     SendMessage.builder()
                     .chatId(chatId.toString())
                     .text(response)
-                    .parseMode("Markdown")
+                    .parseMode("MarkdownV2")
                     .build()
             );
 

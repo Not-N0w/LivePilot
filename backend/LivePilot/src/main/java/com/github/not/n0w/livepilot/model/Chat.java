@@ -28,5 +28,5 @@ public class Chat {
     private DialogStyle usualDialogStyle = DialogStyle.BASE;
 
     @Transient
-    private int extraState = 0;
+    private int extraState = 0; // 0 - regular; 1 - just pushed; 2 - pushed twice and more
 }

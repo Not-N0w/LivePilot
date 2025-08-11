@@ -103,7 +103,7 @@ public class GetMetricsTask implements AiTask {
     @Override
     public ChatSession execute(ChatSession chatSession, Chat chat) {
         AiResponse response = null;
-        if(chat.getExtraState() != 1) {
+        if(chat.getExtraState() == 0) {
             String analyzePrompt = promptLoader.loadPromptText("taskPrompts/getMetrics/GetMetricsAnalyzePrompt.txt");
             ChatSession analyzeMetricsChatSession = new ChatSession(
                     List.of(new Message("system", analyzePrompt)),
@@ -113,7 +113,14 @@ public class GetMetricsTask implements AiTask {
         }
         boolean isNoToolCalls = response == null || response.getToolCalls().isEmpty();
         if(isNoToolCalls) {
-            String prompt = promptLoader.loadPromptText("taskPrompts/getMetrics/GetMetricsPrompt.txt");
+            String prompt;
+            if(chat.getExtraState() == 2) {
+                prompt = promptLoader.loadPromptText("taskPrompts/getMetrics/GetMetricsRetryPrompt.txt");
+
+            }
+            else {
+                prompt = promptLoader.loadPromptText("taskPrompts/getMetrics/GetMetricsPrompt.txt");
+            }
             chatSession.addSystemMessage(prompt);
             chatSession.setChatMessages(new ArrayList<>());
         }
