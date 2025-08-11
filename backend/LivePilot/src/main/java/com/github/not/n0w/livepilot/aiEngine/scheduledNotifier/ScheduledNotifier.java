@@ -13,16 +13,9 @@ import com.github.not.n0w.livepilot.service.AIService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
 import java.time.LocalTime;
@@ -70,7 +63,6 @@ public class ScheduledNotifier {
     public void sendDailyMessage() {
         log.info("Sending Daily Message");
 
-        chatRepository.globalSetTaskGetMetrics();
 
         List<Chat> chats = chatRepository.findAll();
         for (Chat chat : chats) {
@@ -79,11 +71,19 @@ public class ScheduledNotifier {
                     .stream()
                     .map(msg -> new Message(msg.getRole(), msg.getMessage()))
                     .toList());
-            chat.setExtraState(1);
+
+            if(chat.getTask() == AiTaskType.GET_METRICS) {
+                chat.setExtraState(2);
+            } else {
+                chat.setExtraState(1);
+            }
+            chat.setTask(AiTaskType.GET_METRICS);
+            chatRepository.save(chat);
             AiResponse metricsRequest = aiManager.process(new AiRequest(chat, messageList));
             String message = metricsRequest.getAnswerToUser();
             aiService.pushMessageToUser(chat.getId(), message);
         }
+
     }
 
     private TaskScheduler createScheduler() {

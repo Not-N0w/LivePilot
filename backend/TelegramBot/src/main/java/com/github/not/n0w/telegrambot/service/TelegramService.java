@@ -2,13 +2,16 @@ package com.github.not.n0w.telegrambot.service;
 
 import com.github.not.n0w.telegrambot.config.BotConfig;
 import com.github.not.n0w.telegrambot.model.TelegramBot;
+import com.github.not.n0w.telegrambot.utils.MarkdownUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.File;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 
 import java.io.IOException;
@@ -42,4 +45,19 @@ public class TelegramService {
         }
     }
 
+    public void pushMessage(String chatId, String text) {
+
+
+        SendMessage message = SendMessage.builder()
+                .chatId(chatId)
+                .text(MarkdownUtil.escapeMarkdownV2(text))
+                .parseMode("MarkdownV2")
+                .build();
+
+        try {
+            telegramBot.execute(message);
+        } catch (TelegramApiException e) {
+            log.error("Error sending message", e);
+        }
+    }
 }
