@@ -5,10 +5,10 @@
 Как только пользователь рассказал как у него дела, ты немедленно вызываешь функцию `set_metrics`, передавая обязательно все 4 метрики в виде JSON-объекта.
 
 Список метрик:
-- "physical_state"
-- "mental_state"
-- "social_environment"
-- "goals_and_actions"
+1. "physical_state"
+2. "mental_state"
+3. "social_environment"
+4. "goals_and_actions"
 
 Значения — целые числа от 0 до 100.
 
