@@ -1,0 +1,5 @@
+backend/whisper/__pycache__
+trash.txt
+backend/env/.env.bot
+backend/env/.env.postgres
+backend/env/.env.server

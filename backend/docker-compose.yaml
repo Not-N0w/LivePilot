@@ -11,7 +11,7 @@ services:
     ports:
       - "1804:1804"
     env_file:
-      - .env.server
+      - env/.env.server
     healthcheck:
       test: ["CMD", "pgrep", "java"]
       interval: 5s
@@ -29,7 +29,7 @@ services:
     ports:
       - "1805:1805"
     env_file:
-      - .env.bot
+      - env/.env.bot
     healthcheck:
       test: ["CMD", "pgrep", "java"]
       interval: 5s
@@ -51,7 +51,7 @@ services:
       start_period: 30s
       timeout: 10s
     env_file:
-      - .env.postgres
+      - env/.env.postgres
 
   whisper-api:
     build:
