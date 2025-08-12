@@ -26,8 +26,12 @@ public class WhisperConfig {
     @Bean
     public WebClient whisperClient() {
         HttpClient client = HttpClient.create()
-                .responseTimeout(Duration.ofSeconds(60))
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000);
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
+                .responseTimeout(Duration.ofMinutes(5))
+                .doOnConnected(conn -> conn
+                        .addHandlerLast(new io.netty.handler.timeout.ReadTimeoutHandler(300))
+                        .addHandlerLast(new io.netty.handler.timeout.WriteTimeoutHandler(300))
+                );
 
         return WebClient.builder()
                 .baseUrl("http://" + whisperHost + ":" + whisperPort)
