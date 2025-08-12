@@ -27,10 +27,10 @@ public class WhisperConfig {
     public WebClient whisperClient() {
         HttpClient client = HttpClient.create()
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
-                .responseTimeout(Duration.ofMinutes(5))
+                .responseTimeout(Duration.ofMinutes(15))
                 .doOnConnected(conn -> conn
-                        .addHandlerLast(new io.netty.handler.timeout.ReadTimeoutHandler(300))
-                        .addHandlerLast(new io.netty.handler.timeout.WriteTimeoutHandler(300))
+                        .addHandlerLast(new io.netty.handler.timeout.ReadTimeoutHandler(900))
+                        .addHandlerLast(new io.netty.handler.timeout.WriteTimeoutHandler(900))
                 );
 
         return WebClient.builder()
