@@ -1,13 +1,14 @@
-# LivePilot v1.0.0 🚀
+# LifePilot v1.0.1 🚀
 
-LivePilot is a Telegram bot (and future mobile app) designed to help you track and improve your life’s key metrics:
+
+LifePilot is a Telegram bot (and future mobile app) designed to help you track and improve your life’s key metrics:
 
 - Physical state 💪  
 - Mental state 🧠  
 - Social environment 🌐  
 - Goals and actions 🎯  
 
-It checks in twice daily to ask how you’re doing, analyzes your responses using a powerful model (Qwen3), and tracks changes over time. You can chat with LivePilot naturally — via text or voice messages (with Whisper API support) — and receive thoughtful insights tailored to your well-being.
+It checks in twice daily to ask how you’re doing, analyzes your responses using a powerful model (Qwen3), and tracks changes over time. You can chat with LifePilot naturally — via text or voice messages (with Whisper API support) — and receive thoughtful insights tailored to your well-being.
 
 ---
 
@@ -16,7 +17,7 @@ Features ✨
 - Daily check-ins: Automated push messages twice a day prompt you to reflect on your current state.  
 - Voice message support 🎙️: Send voice updates using Whisper speech-to-text integration.  
 - Smart metrics analysis 📊: Responses are processed to estimate your physical, mental, and social well-being, plus progress toward your goals.  
-- Conversational companion 💬: Chat freely with LivePilot for support and advice.
+- Conversational companion 💬: Chat freely with LifePilot for support and advice.
 
 ---
 
@@ -66,7 +67,7 @@ Future Plans 🔮
 
 Contributing 🤝
 
-LivePilot is currently fully open-source. Contributions and feedback are welcome!
+LifePilot is currently fully open-source. Contributions and feedback are welcome!
 
 ---
 
@@ -76,6 +77,7 @@ For questions or suggestions, please open an issue or reach out directly.
 
 ---
 
-Thank you for trying LivePilot — your companion on the journey to better living. 🌟
+Thank you for trying LifePilot — your companion on the journey to better living. 🌟
+
 
 
