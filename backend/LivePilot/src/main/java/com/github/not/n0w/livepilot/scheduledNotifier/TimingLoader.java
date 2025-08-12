@@ -1,4 +1,4 @@
-package com.github.not.n0w.livepilot.aiEngine.scheduledNotifier;
+package com.github.not.n0w.livepilot.scheduledNotifier;
 
 
 import com.fasterxml.jackson.core.type.TypeReference;

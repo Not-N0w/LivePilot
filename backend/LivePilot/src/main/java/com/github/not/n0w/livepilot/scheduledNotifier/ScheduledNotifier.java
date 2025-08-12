@@ -1,4 +1,4 @@
-package com.github.not.n0w.livepilot.aiEngine.scheduledNotifier;
+package com.github.not.n0w.livepilot.scheduledNotifier;
 
 import com.github.not.n0w.livepilot.aiEngine.AiManager;
 import com.github.not.n0w.livepilot.aiEngine.model.AiRequest;

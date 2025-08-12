@@ -1,7 +1,7 @@
 package com.github.not.n0w.livepilot.service.impl;
 
 import com.github.not.n0w.livepilot.config.TelegramBotConfig;
-import com.github.not.n0w.livepilot.service.BotInteractionService;
+import com.github.not.n0w.livepilot.service.InitInteractionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
@@ -15,7 +15,7 @@ import org.springframework.web.client.RestTemplate;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class BotInteractionServiceImpl implements BotInteractionService {
+public class BotInitInteractionServiceImpl implements InitInteractionService {
     private final RestTemplate restTemplate = new RestTemplate();
     private final TelegramBotConfig telegramBotConfig;
 
