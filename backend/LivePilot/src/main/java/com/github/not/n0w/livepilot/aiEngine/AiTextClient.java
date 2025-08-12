@@ -63,7 +63,7 @@ public class AiTextClient {
                 aiConfig.getAiModel(), chatSession, tools
         );
 
-        log.info("Request (with tools): {}", requestPayload);
+        log.info("Request (with tools): {}", requestPayload.toString());
 
         try {
             String responseBody = aiWebClient.post()

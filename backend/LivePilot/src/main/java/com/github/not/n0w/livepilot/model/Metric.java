@@ -24,4 +24,8 @@ public class Metric {
     @Enumerated(EnumType.STRING)
     private MetricType metricType;
 
+    @Override
+    public String toString() {
+        return metricType + ": " + metricValue;
+    }
 }

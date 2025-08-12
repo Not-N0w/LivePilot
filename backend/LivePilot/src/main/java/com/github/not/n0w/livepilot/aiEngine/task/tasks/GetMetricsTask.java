@@ -132,7 +132,7 @@ public class GetMetricsTask implements AiTask {
             List<Metric> previousMetrics = metricRepository.findLatestMetricsByChatId(chat.getId());
 
 
-            String metricsStr = "Прошлые метрики пользователя: " +
+            String metricsStr = "Предыдущие метрики пользователя: " +
                     (previousMetrics == null ? "" : previousMetrics.toString()) + '\n';
 
             chatRepository.save(chat);
