@@ -1,4 +1,4 @@
-# LivePilot 🚀
+# LivePilot (Beta) 🚀
 
 LivePilot is a Telegram bot (and future mobile app) designed to help you track and improve your life’s key metrics:
 
@@ -77,3 +77,4 @@ For questions or suggestions, please open an issue or reach out directly.
 ---
 
 Thank you for trying LivePilot — your companion on the journey to better living. 🌟
+
