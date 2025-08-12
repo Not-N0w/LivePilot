@@ -1,19 +1,21 @@
 package com.github.not.n0w.livepilot.repository;
 
-import com.github.not.n0w.livepilot.model.Chat;
+import com.github.not.n0w.livepilot.model.User;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
-import java.util.List;
+import java.util.Optional;
 
 
 @Transactional
-public interface ChatRepository extends JpaRepository<Chat, String> {
+public interface UserRepository extends JpaRepository<User, Long> {
 
     @Transactional
     @Modifying
-    @Query("UPDATE Chat c SET c.task = 'GET_METRICS'")
+    @Query("UPDATE User c SET c.task = 'GET_METRICS'")
     int globalSetTaskGetMetrics();
+
+    Optional<User> findByUsername(String username);
 }

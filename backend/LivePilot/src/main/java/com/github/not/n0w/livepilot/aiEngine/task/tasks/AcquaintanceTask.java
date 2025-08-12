@@ -5,16 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.not.n0w.livepilot.aiEngine.AiTextClient;
 import com.github.not.n0w.livepilot.aiEngine.model.AiResponse;
-import com.github.not.n0w.livepilot.aiEngine.model.ChatSession;
+import com.github.not.n0w.livepilot.aiEngine.model.UserSession;
 import com.github.not.n0w.livepilot.aiEngine.model.Message;
 import com.github.not.n0w.livepilot.aiEngine.prompt.PromptLoader;
 import com.github.not.n0w.livepilot.aiEngine.task.AiTask;
 import com.github.not.n0w.livepilot.aiEngine.tool.ToolRegistry;
 import com.github.not.n0w.livepilot.model.AiTaskType;
-import com.github.not.n0w.livepilot.model.Chat;
-import com.github.not.n0w.livepilot.model.Metric;
-import com.github.not.n0w.livepilot.model.MetricType;
-import com.github.not.n0w.livepilot.repository.ChatRepository;
+import com.github.not.n0w.livepilot.model.User;
+import com.github.not.n0w.livepilot.repository.UserRepository;
 import com.github.not.n0w.livepilot.repository.MetricRepository;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +27,7 @@ import java.util.*;
 public class AcquaintanceTask implements AiTask {
     private final PromptLoader promptLoader;
     private final AiTextClient aiTextClient;
-    private final ChatRepository chatRepository;
+    private final UserRepository userRepository;
     private final ToolRegistry toolRegistry;
     private final MetricRepository metricRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -46,7 +44,7 @@ public class AcquaintanceTask implements AiTask {
         private String gender;
     }
 
-    private UserInfo extractUserInfoFromJson(JsonNode argumentsRaw, String chatId) {
+    private UserInfo extractUserInfoFromJson(JsonNode argumentsRaw) {
 
         UserInfo userInfo = new UserInfo();
         JsonNode arguments;
@@ -90,30 +88,30 @@ public class AcquaintanceTask implements AiTask {
 
 
     @Override
-    public ChatSession execute(ChatSession chatSession, Chat chat) {
+    public UserSession execute(UserSession userSession, User user) {
         String analyzePrompt = promptLoader.loadPromptText("taskPrompts/acquaintance/AcquaintanceAnalyzePrompt.txt");
-        ChatSession analyzeMetricsChatSession = new ChatSession(
+        UserSession analyzeMetricsUserSession = new UserSession(
                 List.of(new Message("system", analyzePrompt)),
-                chatSession.getChatMessages()
+                userSession.getUserMessages()
         );
-        AiResponse response = aiTextClient.ask(analyzeMetricsChatSession, List.of(toolRegistry.getSetUserInfoToolCall()));
+        AiResponse response = aiTextClient.ask(analyzeMetricsUserSession, List.of(toolRegistry.getSetUserInfoToolCall()));
 
         if(response.getToolCalls().isEmpty()) {
             String prompt = promptLoader.loadPromptText("taskPrompts/acquaintance/AcquaintancePrompt.txt");
-            chatSession.addSystemMessage(prompt);
+            userSession.addSystemMessage(prompt);
         }
         else {
             log.info("Tool call detected: {}", response.getToolCalls());
 
-            chat.setTask(AiTaskType.TALK);
+            user.setTask(AiTaskType.TALK);
 
-            UserInfo userInfo = extractUserInfoFromJson(response.getToolCalls(), chat.getId());
-            chat.setName(userInfo.getName());
-            chat.setGender(userInfo.getGender());
+            UserInfo userInfo = extractUserInfoFromJson(response.getToolCalls());
+            user.setName(userInfo.getName());
+            user.setGender(userInfo.getGender());
 
-            chatRepository.save(chat);
+            userRepository.save(user);
 
         }
-        return chatSession;
+        return userSession;
     }
 }

@@ -5,10 +5,10 @@ import com.github.not.n0w.livepilot.aiEngine.model.AiRequest;
 import com.github.not.n0w.livepilot.aiEngine.model.AiResponse;
 import com.github.not.n0w.livepilot.aiEngine.model.Message;
 import com.github.not.n0w.livepilot.model.AiTaskType;
-import com.github.not.n0w.livepilot.model.Chat;
+import com.github.not.n0w.livepilot.model.User;
 import com.github.not.n0w.livepilot.model.DialogStyle;
 import com.github.not.n0w.livepilot.model.SavedMessage;
-import com.github.not.n0w.livepilot.repository.ChatRepository;
+import com.github.not.n0w.livepilot.repository.UserRepository;
 import com.github.not.n0w.livepilot.repository.SavedMessagesRepository;
 import com.github.not.n0w.livepilot.service.AIService;
 import com.github.not.n0w.livepilot.service.InitInteractionService;
@@ -22,29 +22,22 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AIServiceImpl implements AIService {
     private final AiManager aiManager;
-    private final ChatRepository chatRepository;
+    private final UserRepository userRepository;
     private final SavedMessagesRepository savedMessagesRepository;
     private final InitInteractionService initInteractionService;
 
     @Override
-    public void pushMessageToUser(String chatId, String message) {
-        initInteractionService.pushMessage(chatId, message);
+    public void pushMessageToUser(Long userId, String message) {
+        initInteractionService.pushMessage(userId, message);
     }
 
     @Override
-    public String sendMessage(String chatId, String userText) {
-        Chat chat = chatRepository.findById(chatId)
-                .orElseGet(() -> {
-                    Chat newChat = new Chat();
-                    newChat.setId(chatId);
-                    newChat.setUsualDialogStyle(DialogStyle.BASE);
-                    newChat.setTask(AiTaskType.ACQUAINTANCE);
-                    chatRepository.save(newChat);
-                    log.info("New chat created: {}", newChat);
-                    return newChat;
-                });
+    public String sendMessage(Long userId, String userText) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new RuntimeException("User not found")
+        );
 
-        List<SavedMessage> savedMessages = savedMessagesRepository.findAllByChatId(chatId);
+        List<SavedMessage> savedMessages = savedMessagesRepository.findAllByUserId(userId);
         List<Message> messageList = new java.util.ArrayList<>(savedMessages
                 .stream()
                 .map(msg -> new Message(msg.getRole(), msg.getMessage()))
@@ -52,20 +45,20 @@ public class AIServiceImpl implements AIService {
         messageList.add(new Message("user", userText));
 
         SavedMessage userMessage = new SavedMessage();
-        userMessage.setChat(chat);
+        userMessage.setUser(user);
         userMessage.setMessage(userText);
         userMessage.setRole("user");
         savedMessagesRepository.save(userMessage);
         log.info("User message saved successfully");
 
-        AiRequest request = new AiRequest(chat, messageList);
+        AiRequest request = new AiRequest(user, messageList);
         log.info("AiRequest: {}", request);
 
         AiResponse response = aiManager.process(request);
         log.info("AiResponse: {}", response);
 
         SavedMessage responseMessage = new SavedMessage();
-        responseMessage.setChat(chat);
+        responseMessage.setUser(user);
         responseMessage.setMessage(response.getAnswerToUser());
         responseMessage.setRole("assistant");
         savedMessagesRepository.save(responseMessage);

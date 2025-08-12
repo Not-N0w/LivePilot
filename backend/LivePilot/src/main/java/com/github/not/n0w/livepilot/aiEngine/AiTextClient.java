@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.not.n0w.livepilot.aiEngine.model.AiResponse;
-import com.github.not.n0w.livepilot.aiEngine.model.ChatSession;
+import com.github.not.n0w.livepilot.aiEngine.model.UserSession;
 import com.github.not.n0w.livepilot.aiEngine.model.Message;
 import com.github.not.n0w.livepilot.aiEngine.tool.ToolCall;
 import com.github.not.n0w.livepilot.config.AiConfig;
@@ -58,9 +58,9 @@ public class AiTextClient {
         return new AiResponse(assistantMessage, toolCalls);
     }
 
-    public AiResponse ask(ChatSession chatSession, List<ToolCall> tools) {
+    public AiResponse ask(UserSession userSession, List<ToolCall> tools) {
         OpenAiApiRequest requestPayload = new OpenAiApiRequest(
-                aiConfig.getAiModel(), chatSession, tools
+                aiConfig.getAiModel(), userSession, tools
         );
 
         log.info("Request (with tools): {}", requestPayload.toString());
@@ -95,11 +95,11 @@ public class AiTextClient {
     }
 
 
-    public AiResponse ask(ChatSession chatSession) {
+    public AiResponse ask(UserSession userSession) {
         String requestJson = null;
         try {
             requestJson = new ObjectMapper().writeValueAsString(
-                    new OpenAiApiRequest(aiConfig.getAiModel(), chatSession)
+                    new OpenAiApiRequest(aiConfig.getAiModel(), userSession)
             );
         } catch (JsonProcessingException e) {
             log.error("Error parsing request: {}", requestJson);
@@ -127,16 +127,16 @@ public class AiTextClient {
         List<Message> messages;
         List<ToolCall> tools;
 
-        public OpenAiApiRequest(String model, ChatSession chatSession) {
+        public OpenAiApiRequest(String model, UserSession userSession) {
             this.model = model;
-            this.messages = new java.util.ArrayList<>(chatSession.getSystemMessages());
-            this.messages.addAll(chatSession.getChatMessages());
+            this.messages = new java.util.ArrayList<>(userSession.getSystemMessages());
+            this.messages.addAll(userSession.getUserMessages());
         }
 
-        public OpenAiApiRequest(String model, ChatSession chatSession, List<ToolCall> tools) {
+        public OpenAiApiRequest(String model, UserSession userSession, List<ToolCall> tools) {
             this.model = model;
-            this.messages = new java.util.ArrayList<>(chatSession.getSystemMessages());
-            this.messages.addAll(chatSession.getChatMessages());
+            this.messages = new java.util.ArrayList<>(userSession.getSystemMessages());
+            this.messages.addAll(userSession.getUserMessages());
             this.tools = tools;
         }
 

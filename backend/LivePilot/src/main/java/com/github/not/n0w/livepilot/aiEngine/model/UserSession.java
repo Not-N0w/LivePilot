@@ -16,12 +16,12 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ChatSession {
+public class UserSession {
     private List<Message> systemMessages = new ArrayList<>();
-    private List<Message> chatMessages = new ArrayList<>();
+    private List<Message> userMessages = new ArrayList<>();
 
-    public void addChatMessage(Message message) {
-        chatMessages.add(message);
+    public void addUserMessage(Message message) {
+        userMessages.add(message);
     }
     public void addSystemMessage(String message) {
         systemMessages.add(

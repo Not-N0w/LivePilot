@@ -7,6 +7,4 @@ import lombok.Data;
 @Data
 public class ResponseDto {
     private String text;
-    private byte[] audio;
-    private byte[] photo;
 }

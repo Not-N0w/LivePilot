@@ -22,11 +22,11 @@ public class MessageServiceImpl implements MessageService {
         String response;
 
         if(requestDto.getText() != null) {
-            response = aiService.sendMessage(requestDto.getChatId(), requestDto.getText());
+            response = aiService.sendMessage(requestDto.getUserId(), requestDto.getText());
         }
         else if(requestDto.getAudio() != null) {
             String textFromVoice = whisperService.voiceToText(requestDto.getAudio());
-            response = aiService.sendMessage(requestDto.getChatId(), textFromVoice);
+            response = aiService.sendMessage(requestDto.getUserId(), textFromVoice);
         }
         else {
             log.warn("Format not supported");

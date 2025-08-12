@@ -18,23 +18,6 @@ services:
       retries: 3
     tty: true
 
-  bot:
-    depends_on:
-      - postgres
-      - server
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.bot
-    container_name: bot-container
-    ports:
-      - "1805:1805"
-    env_file:
-      - env/.env.bot
-    healthcheck:
-      test: ["CMD", "pgrep", "java"]
-      interval: 5s
-      retries: 3
-    tty: true
 
   postgres:
     image: postgres

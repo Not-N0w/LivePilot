@@ -15,7 +15,7 @@ public class Metric {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String chatId;
+    private Long userId;
 
     private LocalDateTime createdAt = LocalDateTime.now();
 

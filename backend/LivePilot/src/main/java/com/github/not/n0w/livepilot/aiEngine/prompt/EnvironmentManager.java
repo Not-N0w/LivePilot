@@ -1,12 +1,11 @@
 package com.github.not.n0w.livepilot.aiEngine.prompt;
 
 import com.github.not.n0w.livepilot.aiEngine.model.Message;
-import com.github.not.n0w.livepilot.model.Chat;
+import com.github.not.n0w.livepilot.model.User;
 import com.github.not.n0w.livepilot.model.DialogStyle;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.awt.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -27,11 +26,11 @@ public class EnvironmentManager {
         return dateTime;
     } // todo depends on user location etc
 
-    private String getUserEnvironment(Chat chat) {
+    private String getUserEnvironment(User user) {
         String result = "Информация о пользователе: ";
 
-        result += "Имя: " + (chat.getName() == null ? "Неизвестно" : chat.getName()) + '\n';
-        result += "Пол: " + (chat.getGender() == null ? "Неизвестно" : chat.getGender()) + '\n';
+        result += "Имя: " + (user.getName() == null ? "Неизвестно" : user.getName()) + '\n';
+        result += "Пол: " + (user.getGender() == null ? "Неизвестно" : user.getGender()) + '\n';
 
         return result;
     } // todo user info filing (using tools)
@@ -44,15 +43,15 @@ public class EnvironmentManager {
         return stylePrompt;
     }
 
-    public List<Message> getEnvironmentalMessages(Chat chat) {
+    public List<Message> getEnvironmentalMessages(User user) {
         List<Message> messages = new ArrayList<>();
 
         messages.add(
                 new Message(
                         "system",
                             getGlobalEnvironment() +
-                                    getUserEnvironment(chat) +
-                                    getDialogStyle(chat.getUsualDialogStyle())
+                                    getUserEnvironment(user) +
+                                    getDialogStyle(user.getUsualDialogStyle())
                 )
         );
 

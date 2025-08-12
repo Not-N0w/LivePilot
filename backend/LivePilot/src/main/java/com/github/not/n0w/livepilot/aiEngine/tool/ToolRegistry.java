@@ -14,7 +14,7 @@ public class ToolRegistry {
                     "function",
                     new ToolCall.Function(
                             "set_metrics",
-                            "Extract well-being metrics from the user's chat.",
+                            "Extract well-being metrics from the user's user.",
                             new ObjectMapper().readTree("""
                                         {
                                           "type": "object",
@@ -39,7 +39,7 @@ public class ToolRegistry {
                     "function",
                     new ToolCall.Function(
                             "set_user_info",
-                            "Extracts user info from the user's chat.",
+                            "Extracts user info from the user's user.",
                             new ObjectMapper().readTree("""
                                         {
                                           "type": "object",

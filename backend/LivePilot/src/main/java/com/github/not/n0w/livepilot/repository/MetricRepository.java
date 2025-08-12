@@ -13,13 +13,13 @@ public interface MetricRepository extends JpaRepository<Metric, Long> {
 
     @Query(value = """
         SELECT * FROM metrics m
-        WHERE m.chat_id = :chatId AND m.created_at = (
+        WHERE m.user_id = :userId AND m.created_at = (
             SELECT MAX(m2.created_at)
             FROM metrics m2
-            WHERE m2.chat_id = :chatId
+            WHERE m2.user_id = :userId
         )
     """, nativeQuery = true)
-    List<Metric> findLatestMetricsByChatId(@Param("chatId") String chatId);
+    List<Metric> findLatestMetricsByUserId(@Param("userId") Long userId);
 
 
 }

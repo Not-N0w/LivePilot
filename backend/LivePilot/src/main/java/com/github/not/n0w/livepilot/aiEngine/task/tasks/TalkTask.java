@@ -1,10 +1,10 @@
 package com.github.not.n0w.livepilot.aiEngine.task.tasks;
 
-import com.github.not.n0w.livepilot.aiEngine.model.ChatSession;
+import com.github.not.n0w.livepilot.aiEngine.model.UserSession;
 import com.github.not.n0w.livepilot.aiEngine.prompt.PromptLoader;
 import com.github.not.n0w.livepilot.aiEngine.task.AiTask;
 import com.github.not.n0w.livepilot.model.AiTaskType;
-import com.github.not.n0w.livepilot.model.Chat;
+import com.github.not.n0w.livepilot.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -19,9 +19,9 @@ public class TalkTask implements AiTask {
     }
 
     @Override
-    public ChatSession execute(ChatSession chatSession, Chat chat) {
+    public UserSession execute(UserSession userSession, User user) {
         String talkPrompt = promptLoader.loadPromptText("taskPrompts/TalkPrompt.txt");
-        chatSession.addSystemMessage(talkPrompt);
-        return chatSession;
+        userSession.addSystemMessage(talkPrompt);
+        return userSession;
     }
 }

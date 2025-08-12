@@ -1,7 +1,6 @@
 package com.github.not.n0w.livepilot.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
@@ -20,7 +19,7 @@ public class SavedMessage {
     private String role;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chat_id", nullable = false)
-    private Chat chat;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
 }

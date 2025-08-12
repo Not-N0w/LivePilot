@@ -1,8 +1,8 @@
 package com.github.not.n0w.livepilot.aiEngine.prompt;
 
-import com.github.not.n0w.livepilot.aiEngine.model.ChatSession;
+import com.github.not.n0w.livepilot.aiEngine.model.UserSession;
 import com.github.not.n0w.livepilot.aiEngine.model.Message;
-import com.github.not.n0w.livepilot.model.Chat;
+import com.github.not.n0w.livepilot.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -17,17 +17,17 @@ public class BasePromptBuilder {
     private final EnvironmentManager environmentManager;
     private final PromptLoader promptLoader;
 
-    public ChatSession getSystemMessages(Chat chat) {
+    public UserSession getSystemMessages(User user) {
         List<Message> messages = new ArrayList<>();
         messages.add(
                 new Message("system", promptLoader.loadPromptText("BasePrompt.txt"))
         );
         log.info("BasePrompt loaded");
 
-        messages.addAll(environmentManager.getEnvironmentalMessages(chat));
+        messages.addAll(environmentManager.getEnvironmentalMessages(user));
         log.info("Environmental messages loaded");
 
-        return ChatSession.builder()
+        return UserSession.builder()
                         .systemMessages(messages)
                         .build();
     }

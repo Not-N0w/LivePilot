@@ -3,7 +3,7 @@ package com.github.not.n0w.livepilot.aiEngine.chain;
 import com.github.not.n0w.livepilot.aiEngine.model.AiRequest;
 import com.github.not.n0w.livepilot.aiEngine.model.AiResponse;
 import com.github.not.n0w.livepilot.aiEngine.model.ChainRequest;
-import com.github.not.n0w.livepilot.aiEngine.model.ChatSession;
+import com.github.not.n0w.livepilot.aiEngine.model.UserSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

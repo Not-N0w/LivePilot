@@ -4,7 +4,7 @@ import com.github.not.n0w.livepilot.aiEngine.AiTextClient;
 import com.github.not.n0w.livepilot.aiEngine.chain.AiModule;
 import com.github.not.n0w.livepilot.aiEngine.model.AiResponse;
 import com.github.not.n0w.livepilot.aiEngine.model.ChainRequest;
-import com.github.not.n0w.livepilot.aiEngine.model.ChatSession;
+import com.github.not.n0w.livepilot.aiEngine.model.UserSession;
 import com.github.not.n0w.livepilot.aiEngine.model.Message;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,17 +37,17 @@ public class TalkAiModule implements AiModule {
 
     @Override
     public AiResponse passThrough(ChainRequest request) {
-        ChatSession chatSession = request.getChatSession();
-        log.info("Full request: {}", chatSession);
-        AiResponse aiResponse = aiTextClient.ask(chatSession);
+        UserSession userSession = request.getUserSession();
+        log.info("Full request: {}", userSession);
+        AiResponse aiResponse = aiTextClient.ask(userSession);
         if(isTerminal) {
             return aiResponse;
         }
 
-        chatSession.addChatMessage(
+        userSession.addUserMessage(
                 new Message("assistant", aiResponse.getAnswerToUser())
         );
-        request.setChatSession(chatSession);
+        request.setUserSession(userSession);
         return nextAiModule.passThrough(request);
     }
 

@@ -1,27 +1,25 @@
 package com.github.not.n0w.livepilot.aiEngine.task.tasks;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.not.n0w.livepilot.aiEngine.AiTextClient;
 import com.github.not.n0w.livepilot.aiEngine.model.AiResponse;
-import com.github.not.n0w.livepilot.aiEngine.model.ChatSession;
+import com.github.not.n0w.livepilot.aiEngine.model.UserSession;
 import com.github.not.n0w.livepilot.aiEngine.model.Message;
 import com.github.not.n0w.livepilot.aiEngine.prompt.PromptLoader;
 import com.github.not.n0w.livepilot.aiEngine.task.AiTask;
 import com.github.not.n0w.livepilot.aiEngine.tool.ToolRegistry;
 import com.github.not.n0w.livepilot.model.AiTaskType;
-import com.github.not.n0w.livepilot.model.Chat;
+import com.github.not.n0w.livepilot.model.User;
 import com.github.not.n0w.livepilot.model.Metric;
 import com.github.not.n0w.livepilot.model.MetricType;
-import com.github.not.n0w.livepilot.repository.ChatRepository;
+import com.github.not.n0w.livepilot.repository.UserRepository;
 import com.github.not.n0w.livepilot.repository.MetricRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.util.*;
 
 @Component
@@ -30,7 +28,7 @@ import java.util.*;
 public class GetMetricsTask implements AiTask {
     private final PromptLoader promptLoader;
     private final AiTextClient aiTextClient;
-    private final ChatRepository chatRepository;
+    private final UserRepository userRepository;
     private final ToolRegistry toolRegistry;
     private final MetricRepository metricRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -40,7 +38,7 @@ public class GetMetricsTask implements AiTask {
         return AiTaskType.GET_METRICS;
     }
 
-    public List<Metric> extractMetricsFromJson(JsonNode argumentsRaw, String chatId) {
+    public List<Metric> extractMetricsFromJson(JsonNode argumentsRaw, Long userId) {
         List<Metric> metrics = new ArrayList<>();
         JsonNode arguments;
         String toolName;
@@ -84,7 +82,7 @@ public class GetMetricsTask implements AiTask {
                         Metric metric = new Metric();
                         metric.setMetricType(metricType);
                         metric.setMetricValue(valueNode.asInt());
-                        metric.setChatId(chatId);
+                        metric.setUserId(userId);
 
                         metrics.add(metric);
                     } catch (IllegalArgumentException e) {
@@ -101,52 +99,52 @@ public class GetMetricsTask implements AiTask {
     }
 
     @Override
-    public ChatSession execute(ChatSession chatSession, Chat chat) {
+    public UserSession execute(UserSession userSession, User user) {
         AiResponse response = null;
-        if(chat.getExtraState() == 0) {
+        if(user.getExtraState() == 0) {
             String analyzePrompt = promptLoader.loadPromptText("taskPrompts/getMetrics/GetMetricsAnalyzePrompt.txt");
-            ChatSession analyzeMetricsChatSession = new ChatSession(
+            UserSession analyzeMetricsUserSession = new UserSession(
                     List.of(new Message("system", analyzePrompt)),
-                    chatSession.getChatMessages()
+                    userSession.getUserMessages()
             );
-           response = aiTextClient.ask(analyzeMetricsChatSession, List.of(toolRegistry.getSetMetricsToolCall()));
+           response = aiTextClient.ask(analyzeMetricsUserSession, List.of(toolRegistry.getSetMetricsToolCall()));
         }
         boolean isNoToolCalls = response == null || response.getToolCalls().isEmpty();
         if(isNoToolCalls) {
             String prompt;
-            if(chat.getExtraState() == 2) {
+            if(user.getExtraState() == 2) {
                 prompt = promptLoader.loadPromptText("taskPrompts/getMetrics/GetMetricsRetryPrompt.txt");
 
             }
             else {
                 prompt = promptLoader.loadPromptText("taskPrompts/getMetrics/GetMetricsPrompt.txt");
             }
-            chatSession.addSystemMessage(prompt);
-            chatSession.setChatMessages(new ArrayList<>());
+            userSession.addSystemMessage(prompt);
+            userSession.setUserMessages(new ArrayList<>());
         }
         else {
             log.info("Tool call detected: {}", response.getToolCalls());
 
-            chat.setTask(AiTaskType.TALK);
+            user.setTask(AiTaskType.TALK);
 
-            List<Metric> previousMetrics = metricRepository.findLatestMetricsByChatId(chat.getId());
+            List<Metric> previousMetrics = metricRepository.findLatestMetricsByUserId(user.getId());
 
 
             String metricsStr = "Предыдущие метрики пользователя: " +
                     (previousMetrics == null ? "" : previousMetrics.toString()) + '\n';
 
-            chatRepository.save(chat);
-            List<Metric> metrics = extractMetricsFromJson(response.getToolCalls(), chat.getId());
+            userRepository.save(user);
+            List<Metric> metrics = extractMetricsFromJson(response.getToolCalls(), user.getId());
             metricRepository.saveAll(metrics);
             log.info("Metrics saved to database");
 
             String prompt = promptLoader.loadPromptText("taskPrompts/getMetrics/GetMetricsAcceptPrompt.txt");
-            chatSession.addSystemMessage(prompt);
+            userSession.addSystemMessage(prompt);
 
 
             metricsStr += "Новые метрики пользователя:\n" +  metrics.toString();
-            chatSession.addSystemMessage(metricsStr);
+            userSession.addSystemMessage(metricsStr);
         }
-        return chatSession;
+        return userSession;
     }
 }

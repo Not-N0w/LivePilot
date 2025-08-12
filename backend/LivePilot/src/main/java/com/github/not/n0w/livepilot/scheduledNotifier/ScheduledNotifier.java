@@ -5,9 +5,9 @@ import com.github.not.n0w.livepilot.aiEngine.model.AiRequest;
 import com.github.not.n0w.livepilot.aiEngine.model.AiResponse;
 import com.github.not.n0w.livepilot.aiEngine.model.Message;
 import com.github.not.n0w.livepilot.model.AiTaskType;
-import com.github.not.n0w.livepilot.model.Chat;
+import com.github.not.n0w.livepilot.model.User;
 import com.github.not.n0w.livepilot.model.SavedMessage;
-import com.github.not.n0w.livepilot.repository.ChatRepository;
+import com.github.not.n0w.livepilot.repository.UserRepository;
 import com.github.not.n0w.livepilot.repository.SavedMessagesRepository;
 import com.github.not.n0w.livepilot.service.AIService;
 import jakarta.annotation.PostConstruct;
@@ -29,7 +29,7 @@ import java.util.List;
 @Slf4j
 public class ScheduledNotifier {
 
-    private final ChatRepository chatRepository;
+    private final UserRepository userRepository;
     private final AiManager aiManager;
     private final SavedMessagesRepository savedMessagesRepository;
     private final AIService aiService;
@@ -64,24 +64,24 @@ public class ScheduledNotifier {
         log.info("Sending Daily Message");
 
 
-        List<Chat> chats = chatRepository.findAll();
-        for (Chat chat : chats) {
-            List<SavedMessage> savedMessages = savedMessagesRepository.findAllByChatId(chat.getId());
+        List<User> users = userRepository.findAll();
+        for (User user : users) {
+            List<SavedMessage> savedMessages = savedMessagesRepository.findAllByUserId(user.getId());
             List<Message> messageList = new ArrayList<>(savedMessages
                     .stream()
                     .map(msg -> new Message(msg.getRole(), msg.getMessage()))
                     .toList());
 
-            if(chat.getTask() == AiTaskType.GET_METRICS) {
-                chat.setExtraState(2);
+            if(user.getTask() == AiTaskType.GET_METRICS) {
+                user.setExtraState(2);
             } else {
-                chat.setExtraState(1);
+                user.setExtraState(1);
             }
-            chat.setTask(AiTaskType.GET_METRICS);
-            chatRepository.save(chat);
-            AiResponse metricsRequest = aiManager.process(new AiRequest(chat, messageList));
+            user.setTask(AiTaskType.GET_METRICS);
+            userRepository.save(user);
+            AiResponse metricsRequest = aiManager.process(new AiRequest(user, messageList));
             String message = metricsRequest.getAnswerToUser();
-            aiService.pushMessageToUser(chat.getId(), message);
+            aiService.pushMessageToUser(user.getId(), message);
         }
 
     }
