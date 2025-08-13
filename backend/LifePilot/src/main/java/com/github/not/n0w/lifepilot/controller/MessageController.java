@@ -27,8 +27,8 @@ public class MessageController {
 
     public record TextRequest(String text) {}
 
-    @PostMapping(value = "/text-message")
-    public Map<String, String> handleMultipartMessage(@RequestBody TextRequest request) {
+    @PostMapping(value = "/text-message", produces = MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8")
+    public Map<String, String> handleTextMessage(@RequestBody TextRequest request) {
         String text = request.text();
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -43,8 +43,8 @@ public class MessageController {
         return Map.of("text", gptResponse);
     }
 
-    @PostMapping(value = "/audio-message", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Map<String, String> handleMultipartMessage(
+    @PostMapping(value = "/audio-message", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8")
+    public Map<String, String> handleAudioMessage(
             @RequestPart("audio") MultipartFile audio
     ) {
 
