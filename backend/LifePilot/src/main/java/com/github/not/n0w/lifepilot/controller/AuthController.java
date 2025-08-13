@@ -74,9 +74,11 @@ public class AuthController {
         ));
     }
 
+    public record RefreshRequest(String refreshToken) {}
+
     @PostMapping("/refresh")
-    public ResponseEntity<Map<String, String>> refresh(@RequestBody Map<String, String> request) {
-        String refreshToken = request.get("refreshToken");
+    public ResponseEntity<Map<String, String>> refresh(@RequestBody RefreshRequest request) {
+        String refreshToken = request.refreshToken;
         if (refreshToken == null || refreshToken.isBlank()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("message", "Refresh token is required"));
