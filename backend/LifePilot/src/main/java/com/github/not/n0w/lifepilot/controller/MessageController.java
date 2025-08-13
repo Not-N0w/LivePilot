@@ -1,8 +1,6 @@
 package com.github.not.n0w.lifepilot.controller;
 
 
-import com.github.not.n0w.lifepilot.dto.RequestDto;
-import com.github.not.n0w.lifepilot.dto.ResponseDto;
 import com.github.not.n0w.lifepilot.model.User;
 import com.github.not.n0w.lifepilot.repository.UserRepository;
 import com.github.not.n0w.lifepilot.service.JwtService;
@@ -25,14 +23,29 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class MessageController {
     private final MessageService messageService;
-    private final JwtService jwtService;
     private final UserRepository userRepository;
 
-    @PostMapping(value = "/message", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseDto handleMultipartMessage(
-            @RequestPart(value = "text", required = false) String text,
-            @RequestPart(value = "audio", required = false) MultipartFile audio,
-            @RequestPart(value = "photo", required = false) MultipartFile photo
+    public record TextRequest(String text) {}
+
+    @PostMapping(value = "/text-message")
+    public Map<String, String> handleMultipartMessage(@RequestBody TextRequest request) {
+        String text = request.text();
+
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+
+        User user = userRepository.findByUsername(username).orElseThrow(
+                () -> new AuthenticationException("User not found") {}
+        );
+
+
+        String gptResponse = messageService.handleTextMessage(user.getId(), text);
+        return Map.of("text", gptResponse);
+    }
+
+    @PostMapping(value = "/audio-message", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Map<String, String> handleMultipartMessage(
+            @RequestPart("audio") MultipartFile audio
     ) {
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -42,15 +55,9 @@ public class MessageController {
                 () -> new AuthenticationException("User not found") {}
         );
 
-        RequestDto dto = RequestDto.builder()
-                .userId(user.getId())
-                .text(text)
-                .audio(audio)
-                .photo(photo)
-                .build();
+        String gptResponse = messageService.handleAudioMessage(user.getId(), audio);
+        return Map.of("text", gptResponse);
 
-        String gptResponse = messageService.handleMessage(dto);
-        return ResponseDto.builder().text(gptResponse).build();
     }
 
     @ExceptionHandler(AuthenticationException.class)

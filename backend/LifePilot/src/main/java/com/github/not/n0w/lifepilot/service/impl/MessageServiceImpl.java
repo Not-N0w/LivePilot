@@ -1,12 +1,12 @@
 package com.github.not.n0w.lifepilot.service.impl;
 
-import com.github.not.n0w.lifepilot.dto.RequestDto;
 import com.github.not.n0w.lifepilot.service.AIService;
 import com.github.not.n0w.lifepilot.service.MessageService;
 import com.github.not.n0w.lifepilot.service.WhisperService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Slf4j
@@ -16,21 +16,31 @@ public class MessageServiceImpl implements MessageService {
     private final WhisperService whisperService;
 
     @Override
-    public String handleMessage(RequestDto requestDto) {
-        // maybe I should add an extra layer here
+    public String handleTextMessage(Long userId, String text) {
 
         String response;
 
-        if(requestDto.getText() != null) {
-            response = aiService.sendMessage(requestDto.getUserId(), requestDto.getText());
-        }
-        else if(requestDto.getAudio() != null) {
-            String textFromVoice = whisperService.voiceToText(requestDto.getAudio());
-            response = aiService.sendMessage(requestDto.getUserId(), textFromVoice);
+        if(text != null && !text.isEmpty()) {
+            response = aiService.sendMessage(userId, text);
         }
         else {
-            log.warn("Format not supported");
-            return "Формат пока что не поддерживается";
+            log.error("text is empty");
+            throw new RuntimeException("text is empty");
+        }
+        return response;
+    }
+
+    @Override
+    public String handleAudioMessage(Long userId, MultipartFile audioFile) {
+
+        String response;
+        if(audioFile != null) {
+            String textFromVoice = whisperService.voiceToText(audioFile);
+            response = aiService.sendMessage(userId, textFromVoice);
+        }
+        else {
+            log.error("no audio found");
+            throw new RuntimeException("no audio found");
         }
 
         return response;
