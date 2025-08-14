@@ -40,7 +40,10 @@ public class MessageController {
 
 
         String gptResponse = messageService.handleTextMessage(user.getId(), text);
-        return Map.of("text", gptResponse);
+        return Map.of(
+                "role", "assistant",
+                "text", gptResponse
+        );
     }
 
     @PostMapping(value = "/audio-message", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8")
@@ -64,6 +67,9 @@ public class MessageController {
     public ResponseEntity<Map<String, String>> handle(AuthenticationException ex) {
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
-                .body(Map.of("message", ex.getMessage()));
+                .body(Map.of(
+                        "role", "assistant",
+                        "message", ex.getMessage())
+                );
     }
 }
